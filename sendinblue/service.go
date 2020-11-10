@@ -28,14 +28,14 @@ func NewService(apiKey, apiVersion, baseURL string) visimail.EmailService {
 func (s *service) SendEmailFromTemplate(templateID string, to []string, cc []string, bcc []string, params map[string]interface{}, attachments []*visimail.Attachment, replyTo string) (string, error) {
 	t, err := strconv.Atoi(templateID)
 	if err != nil {
-		return "", &ParamsError{fmt.Errorf("failed to convert template id to int: %v", err)}
+		return "", &ParamsError{fmt.Errorf("failed to convert template id to int: %w", err)}
 	}
 
 	var as []*attachment
 	for _, attachment := range attachments {
 		a, err := newAttachment(attachment.URL, attachment.Content, attachment.Name)
 		if err != nil {
-			return "", &ParamsError{fmt.Errorf("failed to create new attachment: %v", err)}
+			return "", &ParamsError{fmt.Errorf("failed to create new attachment: %w", err)}
 		}
 
 		as = append(as, a)
