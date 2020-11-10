@@ -1,6 +1,9 @@
 package sendinblue
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type attachment struct {
 	URL     string `json:"url,omitempty"`
@@ -11,7 +14,7 @@ type attachment struct {
 func newAttachment(url, content, name string) (*attachment, error) {
 	attachment := &attachment{URL: url, Content: content, Name: name}
 	if err := attachment.validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid attachment: %v", err)
 	}
 
 	return attachment, nil
@@ -23,7 +26,7 @@ func (a *attachment) validate() error {
 	}
 
 	if a.Content == "" {
-		return errors.New("url or content is required in attachment")
+		return errors.New("url or content is required")
 	}
 
 	if a.Name == "" {
