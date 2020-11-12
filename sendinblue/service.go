@@ -25,7 +25,7 @@ func NewService(apiKey, apiVersion, baseURL string) visimail.EmailService {
 	}
 }
 
-func (s *service) SendEmailFromTemplate(templateID string, to []string, cc []string, bcc []string, params map[string]interface{}, attachments []*visimail.Attachment, replyTo string) (string, error) {
+func (s *service) SendEmailFromTemplate(templateID string, subject *string, to []string, cc []string, bcc []string, params map[string]interface{}, attachments []*visimail.Attachment, replyTo string) (string, error) {
 	t, err := strconv.Atoi(templateID)
 	if err != nil {
 		return "", &ParamsError{fmt.Errorf("failed to convert template id to int: %w", err)}
@@ -49,6 +49,7 @@ func (s *service) SendEmailFromTemplate(templateID string, to []string, cc []str
 		Params      map[string]interface{} `json:"params,omitempty"`
 		Attachments []*attachment          `json:"attachment,omitempty"`
 		ReplyTo     *destination           `json:"replyTo,omitempty"`
+		Subject     *string                `json:"subject,omitempty"`
 	}{
 		TemplateID:  int64(t),
 		To:          newDestinations(to),
@@ -57,6 +58,7 @@ func (s *service) SendEmailFromTemplate(templateID string, to []string, cc []str
 		Params:      params,
 		Attachments: as,
 		ReplyTo:     newDestination(replyTo),
+		Subject:     subject,
 	}
 
 	return s.post(payload, "/smtp/email")
