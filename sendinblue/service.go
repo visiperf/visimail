@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/visiperf/visimail"
+	"github.com/visiperf/visimail/v2"
 )
 
 type service struct {
