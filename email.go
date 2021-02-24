@@ -72,6 +72,13 @@ func (b *EmailBuilder) ReplyTo(recipient Recipient) *EmailBuilder {
 	return b
 }
 
+// AppendAttachment is method to append an attachment on email
+func (b *EmailBuilder) AppendAttachment(attachment Attachment) *EmailBuilder {
+	b.email.attachments = append(b.email.attachments, attachment)
+
+	return b
+}
+
 // EmailBodyBuilder is struct used to set content of email
 type EmailBodyBuilder struct {
 	EmailBuilder
