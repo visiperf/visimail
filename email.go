@@ -93,6 +93,12 @@ func (b *EmailBuilder) WithParams(params map[string]interface{}) *EmailBuilder {
 	return b
 }
 
+// Build is method to build an email
+// TODO: implement visivalidator in Build()
+func (b *EmailBuilder) Build() (*Email, error) {
+	return b.email, nil
+}
+
 // EmailBodyBuilder is struct used to set content of email
 type EmailBodyBuilder struct {
 	EmailBuilder
