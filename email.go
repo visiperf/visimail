@@ -79,6 +79,13 @@ func (b *EmailBuilder) AppendAttachment(attachment Attachment) *EmailBuilder {
 	return b
 }
 
+// TemplateID is method to set an email template identifier
+func (b *EmailBuilder) TemplateID(id int) *EmailBuilder {
+	b.email.templateID = id
+
+	return b
+}
+
 // EmailBodyBuilder is struct used to set content of email
 type EmailBodyBuilder struct {
 	EmailBuilder
