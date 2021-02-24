@@ -58,6 +58,13 @@ func (b *EmailBuilder) Body() *EmailBodyBuilder {
 	return &EmailBodyBuilder{*b}
 }
 
+// Subject is method to set email subject
+func (b *EmailBuilder) Subject(subject string) *EmailBuilder {
+	b.email.subject = subject
+
+	return b
+}
+
 // EmailBodyBuilder is struct used to set content of email
 type EmailBodyBuilder struct {
 	EmailBuilder
