@@ -65,6 +65,13 @@ func (b *EmailBuilder) Subject(subject string) *EmailBuilder {
 	return b
 }
 
+// ReplyTo is method to set reply to of email
+func (b *EmailBuilder) ReplyTo(recipient Recipient) *EmailBuilder {
+	b.email.replyTo = recipient
+
+	return b
+}
+
 // EmailBodyBuilder is struct used to set content of email
 type EmailBodyBuilder struct {
 	EmailBuilder
