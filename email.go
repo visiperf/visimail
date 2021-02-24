@@ -86,6 +86,13 @@ func (b *EmailBuilder) TemplateID(id int) *EmailBuilder {
 	return b
 }
 
+// WithParams is method to set params on email
+func (b *EmailBuilder) WithParams(params map[string]interface{}) *EmailBuilder {
+	b.email.params = params
+
+	return b
+}
+
 // EmailBodyBuilder is struct used to set content of email
 type EmailBodyBuilder struct {
 	EmailBuilder
