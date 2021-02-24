@@ -25,6 +25,13 @@ func NewEmailBuilder() *EmailBuilder {
 	return &EmailBuilder{&Email{}}
 }
 
+// From is method to set email sender
+func (b *EmailBuilder) From(sender Sender) *EmailBuilder {
+	b.email.from = sender
+
+	return b
+}
+
 // Body is method to set content of email using body builder
 func (b *EmailBuilder) Body() *EmailBodyBuilder {
 	return &EmailBodyBuilder{*b}
