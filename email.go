@@ -32,6 +32,27 @@ func (b *EmailBuilder) From(sender Sender) *EmailBuilder {
 	return b
 }
 
+// AppendTo is method to append a recipient in email to list
+func (b *EmailBuilder) AppendTo(recipient Recipient) *EmailBuilder {
+	b.email.to = append(b.email.to, recipient)
+
+	return b
+}
+
+// AppendCC is method to append a recipient in email cc list
+func (b *EmailBuilder) AppendCC(recipient Recipient) *EmailBuilder {
+	b.email.cc = append(b.email.cc, recipient)
+
+	return b
+}
+
+// AppendBCC is method to append a recipient in email bcc list
+func (b *EmailBuilder) AppendBCC(recipient Recipient) *EmailBuilder {
+	b.email.bcc = append(b.email.bcc, recipient)
+
+	return b
+}
+
 // Body is method to set content of email using body builder
 func (b *EmailBuilder) Body() *EmailBodyBuilder {
 	return &EmailBodyBuilder{*b}
