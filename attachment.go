@@ -1,58 +1,58 @@
 package visimail
 
-type attachmentType int
+type AttachmentType int
 
 const (
-	attachmentTypeContent attachmentType = iota
-	attachmentTypeURL
+	AttachmentTypeContent AttachmentType = iota
+	AttachmentTypeURL
 )
 
 // Attachment is interface implemented by types representing an attachment
 type Attachment interface {
 	Filename() string
-	Type() attachmentType
+	Type() AttachmentType
 }
 
-type attachmentContent struct {
+type AttachmentContent struct {
 	filename string
 	content  string
 }
 
 // NewAttachmentContent is factory to create a new attachment containing content encoded to base64
 func NewAttachmentContent(filename, content string) Attachment {
-	return &attachmentContent{filename, content}
+	return &AttachmentContent{filename, content}
 }
 
-func (a attachmentContent) Filename() string {
+func (a AttachmentContent) Filename() string {
 	return a.filename
 }
 
-func (a attachmentContent) Content() string {
+func (a AttachmentContent) Content() string {
 	return a.content
 }
 
-func (a attachmentContent) Type() attachmentType {
-	return attachmentTypeContent
+func (a AttachmentContent) Type() AttachmentType {
+	return AttachmentTypeContent
 }
 
-type attachmentURL struct {
+type AttachmentURL struct {
 	filename string
 	url      string
 }
 
 // NewAttachmentURL is factory to create a new attachment containing an external url
 func NewAttachmentURL(filename, url string) Attachment {
-	return &attachmentURL{filename, url}
+	return &AttachmentURL{filename, url}
 }
 
-func (a attachmentURL) Filename() string {
+func (a AttachmentURL) Filename() string {
 	return a.filename
 }
 
-func (a attachmentURL) URL() string {
+func (a AttachmentURL) URL() string {
 	return a.url
 }
 
-func (a attachmentURL) Type() attachmentType {
-	return attachmentTypeURL
+func (a AttachmentURL) Type() AttachmentType {
+	return AttachmentTypeURL
 }
