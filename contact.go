@@ -1,34 +1,65 @@
 package visimail
 
-// Recipient is interface implemented by types that represents a person receiving an email
+import "encoding/json"
+
 type Recipient interface {
 	Name() string
 	Email() string
+	IsZero() bool
 }
 
-// Sender is interface implemented by types that represents a person sending an email
 type Sender interface {
 	Name() string
 	Email() string
+	IsZero() bool
 }
 
-// Contact is struct representing a person that can be contacted by email
+var emptyContact = Contact{}
+
 type Contact struct {
-	name  string
 	email string
+	name  string
 }
 
-// NewContact is factory to create a new contact
-func NewContact(name, email string) *Contact {
-	return &Contact{name, email}
+func NewContact(email string, opts ...ContactOption) Contact {
+	c := Contact{email: email}
+	for _, opt := range opts {
+		opt(&c)
+	}
+
+	return c
 }
 
-// Name return the contact name
 func (c Contact) Name() string {
 	return c.name
 }
 
-// Email return the email address of the contact
 func (c Contact) Email() string {
 	return c.email
+}
+
+func (c Contact) Equals(contact Contact) bool {
+	return c == contact
+}
+
+func (c Contact) IsZero() bool {
+	return c.Equals(emptyContact)
+}
+
+func (c Contact) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Email string `json:"email"`
+		Name  string `json:"name,omitempty"`
+	}{
+		Email: c.Email(),
+		Name:  c.Name(),
+	})
+}
+
+type ContactOption func(c *Contact)
+
+func WithName(name string) ContactOption {
+	return func(c *Contact) {
+		c.name = name
+	}
 }
