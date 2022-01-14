@@ -124,3 +124,18 @@ func WithFilename(name string) AttachmentURLOption {
 		a.filename = name
 	}
 }
+
+func chunkAttachments(attachments []Attachment, chunkSize int) [][]Attachment {
+	var chunks [][]Attachment
+	for i := 0; i < len(attachments); i += chunkSize {
+		end := i + chunkSize
+
+		if end > len(attachments) {
+			end = len(attachments)
+		}
+
+		chunks = append(chunks, attachments[i:end])
+	}
+
+	return chunks
+}
