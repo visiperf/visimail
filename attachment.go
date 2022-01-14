@@ -1,6 +1,7 @@
 package visimail
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -24,7 +25,10 @@ const (
 type Attachment interface {
 	Type() AttachmentType
 	Validate() error
+	IsZero() bool
 }
+
+var emptyAttachmentContent = AttachmentContent{}
 
 type AttachmentContent struct {
 	filename string
@@ -51,6 +55,14 @@ func (a AttachmentContent) Type() AttachmentType {
 	return AttachmentTypeContent
 }
 
+func (a AttachmentContent) Equals(attachment AttachmentContent) bool {
+	return a.filename == attachment.filename && bytes.Compare(a.content, attachment.content) == 0
+}
+
+func (a AttachmentContent) IsZero() bool {
+	return a.Equals(emptyAttachmentContent)
+}
+
 func (a AttachmentContent) Validate() error {
 	if len(a.filename) <= 0 {
 		return ErrEmptyAttachmentFilename
@@ -72,6 +84,8 @@ func (a AttachmentContent) MarshalJSON() ([]byte, error) {
 		Name:    a.Filename(),
 	})
 }
+
+var emptyAttachmentURL = AttachmentURL{}
 
 type AttachmentURL struct {
 	url      string
@@ -97,6 +111,14 @@ func (a AttachmentURL) Filename() string {
 
 func (a AttachmentURL) Type() AttachmentType {
 	return AttachmentTypeURL
+}
+
+func (a AttachmentURL) Equals(attachment AttachmentURL) bool {
+	return a == attachment
+}
+
+func (a AttachmentURL) IsZero() bool {
+	return a.Equals(emptyAttachmentURL)
 }
 
 func (a AttachmentURL) Validate() error {
