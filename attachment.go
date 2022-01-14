@@ -1,5 +1,19 @@
 package visimail
 
+import (
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/url"
+)
+
+var (
+	ErrEmptyAttachmentFilename = errors.New("attachment filename is empty")
+	ErrEmptyAttachmentContent  = errors.New("attachment content is empty")
+	ErrInvalidAttachmentURL    = errors.New("attachment url is invalid")
+)
+
 type AttachmentType int
 
 const (
@@ -7,52 +21,106 @@ const (
 	AttachmentTypeURL
 )
 
-// Attachment is interface implemented by types representing an attachment
 type Attachment interface {
-	Filename() string
 	Type() AttachmentType
+	Validate() error
 }
 
 type AttachmentContent struct {
 	filename string
-	content  string
+	content  []byte
 }
 
-// NewAttachmentContent is factory to create a new attachment containing content encoded to base64
-func NewAttachmentContent(filename, content string) Attachment {
-	return &AttachmentContent{filename, content}
+func NewAttachmentContent(filename string, content []byte) AttachmentContent {
+	return AttachmentContent{filename, content}
 }
 
 func (a AttachmentContent) Filename() string {
 	return a.filename
 }
 
-func (a AttachmentContent) Content() string {
+func (a AttachmentContent) Content() []byte {
 	return a.content
+}
+
+func (a AttachmentContent) Base64Content() string {
+	return base64.StdEncoding.EncodeToString(a.Content())
 }
 
 func (a AttachmentContent) Type() AttachmentType {
 	return AttachmentTypeContent
 }
 
+func (a AttachmentContent) Validate() error {
+	if len(a.filename) <= 0 {
+		return ErrEmptyAttachmentFilename
+	}
+
+	if len(a.content) <= 0 {
+		return ErrEmptyAttachmentContent
+	}
+
+	return nil
+}
+
+func (a AttachmentContent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Content string `json:"content"`
+		Name    string `json:"name"`
+	}{
+		Content: a.Base64Content(),
+		Name:    a.Filename(),
+	})
+}
+
 type AttachmentURL struct {
-	filename string
 	url      string
+	filename string
 }
 
-// NewAttachmentURL is factory to create a new attachment containing an external url
-func NewAttachmentURL(filename, url string) Attachment {
-	return &AttachmentURL{filename, url}
-}
+func NewAttachmentURL(url string, opts ...AttachmentURLOption) AttachmentURL {
+	a := AttachmentURL{url: url}
+	for _, opt := range opts {
+		opt(&a)
+	}
 
-func (a AttachmentURL) Filename() string {
-	return a.filename
+	return a
 }
 
 func (a AttachmentURL) URL() string {
 	return a.url
 }
 
+func (a AttachmentURL) Filename() string {
+	return a.filename
+}
+
 func (a AttachmentURL) Type() AttachmentType {
 	return AttachmentTypeURL
+}
+
+func (a AttachmentURL) Validate() error {
+	if _, err := url.Parse(a.url); err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidAttachmentURL, err)
+	}
+
+	return nil
+}
+
+func (a AttachmentURL) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		URL  string `json:"url"`
+		Name string `json:"name,omitempty"`
+	}{
+		URL:  a.URL(),
+		Name: a.Filename(),
+	})
+}
+
+type AttachmentURLOption func(*AttachmentURL)
+
+func WithFilename(name string) AttachmentURLOption {
+	return func(a *AttachmentURL) {
+		a.filename = name
+	}
 }
