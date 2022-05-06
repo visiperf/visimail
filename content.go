@@ -3,7 +3,6 @@ package visimail
 import (
 	"encoding/json"
 	"errors"
-	"reflect"
 )
 
 var (
@@ -17,7 +16,7 @@ type contentType int
 const (
 	contentTypeHTML contentType = iota
 	contentTypePlainText
-	contentTypeTemplateId
+	contentTypeTemplate
 )
 
 type content interface {
@@ -110,15 +109,15 @@ func (c plainTextContent) Type() contentType {
 	return contentTypePlainText
 }
 
-var emptyTemplateIdContent = templateIdContent{}
+var emptyTemplateContent = templateContent{}
 
-type templateIdContent struct {
+type templateContent struct {
 	id     int
 	params map[string]interface{}
 }
 
-func newTemplateIdContent(templateId int, opts ...TemplateIdContentOption) templateIdContent {
-	c := templateIdContent{id: templateId}
+func newTemplateContent(id int, opts ...TemplateContentOption) templateContent {
+	c := templateContent{id: id}
 	for _, opt := range opts {
 		opt(&c)
 	}
@@ -126,31 +125,23 @@ func newTemplateIdContent(templateId int, opts ...TemplateIdContentOption) templ
 	return c
 }
 
-func (c templateIdContent) ID() int {
+func (c templateContent) ID() int {
 	return c.id
 }
 
-func (c templateIdContent) Params() map[string]interface{} {
+func (c templateContent) Params() map[string]interface{} {
 	return c.params
 }
 
-func (c templateIdContent) Validate() error {
-	if c.IsZero() {
+func (c templateContent) Validate() error {
+	if c.id <= 0 {
 		return ErrEmptyTemplateId
 	}
 
 	return nil
 }
 
-func (c templateIdContent) Equals(content templateIdContent) bool {
-	return reflect.DeepEqual(c, content)
-}
-
-func (c templateIdContent) IsZero() bool {
-	return c.Equals(emptyTemplateIdContent)
-}
-
-func (c templateIdContent) MarshalJSON() ([]byte, error) {
+func (c templateContent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		TemplateId int                    `json:"templateId"`
 		Params     map[string]interface{} `json:"params,omitempty"`
@@ -160,14 +151,14 @@ func (c templateIdContent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c templateIdContent) Type() contentType {
-	return contentTypeTemplateId
+func (c templateContent) Type() contentType {
+	return contentTypeTemplate
 }
 
-type TemplateIdContentOption func(c *templateIdContent)
+type TemplateContentOption func(c *templateContent)
 
-func WithParams(params map[string]interface{}) TemplateIdContentOption {
-	return func(c *templateIdContent) {
+func WithParams(params map[string]interface{}) TemplateContentOption {
+	return func(c *templateContent) {
 		c.params = params
 	}
 }
