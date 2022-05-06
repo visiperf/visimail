@@ -53,3 +53,41 @@ func (c htmlContent) MarshalJSON() ([]byte, error) {
 		Content: c.Content(),
 	})
 }
+
+var emptyPlainTextContent = plainTextContent{}
+
+type plainTextContent struct {
+	text string
+}
+
+func newPlainTextContent(text string) plainTextContent {
+	return plainTextContent{text}
+}
+
+func (c plainTextContent) Content() string {
+	return c.text
+}
+
+func (c plainTextContent) Validate() error {
+	if c.IsZero() {
+		return ErrEmptyPlainTextContent
+	}
+
+	return nil
+}
+
+func (c plainTextContent) Equals(content plainTextContent) bool {
+	return c == content
+}
+
+func (c plainTextContent) IsZero() bool {
+	return c.Equals(emptyPlainTextContent)
+}
+
+func (c plainTextContent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Content string `json:"textContent"`
+	}{
+		Content: c.Content(),
+	})
+}
