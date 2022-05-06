@@ -3,6 +3,7 @@ package visimail
 import (
 	"encoding/json"
 	"errors"
+	"reflect"
 )
 
 var (
@@ -90,4 +91,62 @@ func (c plainTextContent) MarshalJSON() ([]byte, error) {
 	}{
 		Content: c.Content(),
 	})
+}
+
+var emptyTemplateIdContent = templateIdContent{}
+
+type templateIdContent struct {
+	id     int
+	params map[string]interface{}
+}
+
+func newTemplateIdContent(templateId int, opts ...TemplateIdContentOption) templateIdContent {
+	c := templateIdContent{id: templateId}
+	for _, opt := range opts {
+		opt(&c)
+	}
+
+	return c
+}
+
+func (c templateIdContent) ID() int {
+	return c.id
+}
+
+func (c templateIdContent) Params() map[string]interface{} {
+	return c.params
+}
+
+func (c templateIdContent) Validate() error {
+	if c.IsZero() {
+		return ErrEmptyTemplateId
+	}
+
+	return nil
+}
+
+func (c templateIdContent) Equals(content templateIdContent) bool {
+	return reflect.DeepEqual(c, content)
+}
+
+func (c templateIdContent) IsZero() bool {
+	return c.Equals(emptyTemplateIdContent)
+}
+
+func (c templateIdContent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		TemplateId int                    `json:"templateId"`
+		Params     map[string]interface{} `json:"params,omitempty"`
+	}{
+		TemplateId: c.ID(),
+		Params:     c.Params(),
+	})
+}
+
+type TemplateIdContentOption func(c *templateIdContent)
+
+func WithParams(params map[string]interface{}) TemplateIdContentOption {
+	return func(c *templateIdContent) {
+		c.params = params
+	}
 }
