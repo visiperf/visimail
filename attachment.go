@@ -53,7 +53,7 @@ func (a AttachmentContent) Base64Content() string {
 }
 
 func (a AttachmentContent) Equals(attachment AttachmentContent) bool {
-	return a.filename == attachment.filename && bytes.Compare(a.content, attachment.content) == 0
+	return a.Filename() == attachment.Filename() && bytes.Compare(a.Content(), attachment.Content()) == 0
 }
 
 func (a AttachmentContent) IsZero() bool {
@@ -131,7 +131,7 @@ func (a AttachmentURL) Validate() error {
 		return ErrEmptyAttachment
 	}
 
-	if _, err := url.Parse(a.url); err != nil {
+	if _, err := url.Parse(a.URL()); err != nil {
 		return fmt.Errorf("%w: %v", ErrInvalidAttachmentURL, err)
 	}
 
