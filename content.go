@@ -11,35 +11,47 @@ var (
 	ErrEmptyTemplateId       = errors.New("template id is empty")
 )
 
-type contentType int
+type ContentType int
 
 const (
-	contentTypeHTML contentType = iota
-	contentTypePlainText
-	contentTypeTemplate
+	ContentTypeHTML ContentType = iota
+	ContentTypePlainText
+	ContentTypeTemplate
 )
 
-type content interface {
+type Content interface {
 	json.Marshaler
+	Type() ContentType
 	Validate() error
-	Type() contentType
 }
 
-var emptyHTMLContent = htmlContent{}
+var emptyHTMLContent = HTMLContent{}
 
-type htmlContent struct {
+type HTMLContent struct {
 	html string
 }
 
-func newHTMLContent(html string) htmlContent {
-	return htmlContent{html}
+func NewHTMLContent(html string) HTMLContent {
+	return HTMLContent{html}
 }
 
-func (c htmlContent) Content() string {
+func (c HTMLContent) Content() string {
 	return c.html
 }
 
-func (c htmlContent) Validate() error {
+func (c HTMLContent) Equals(content HTMLContent) bool {
+	return c == content
+}
+
+func (c HTMLContent) IsZero() bool {
+	return c.Equals(emptyHTMLContent)
+}
+
+func (c HTMLContent) Type() ContentType {
+	return ContentTypeHTML
+}
+
+func (c HTMLContent) Validate() error {
 	if c.IsZero() {
 		return ErrEmptyHTMLContent
 	}
@@ -47,15 +59,7 @@ func (c htmlContent) Validate() error {
 	return nil
 }
 
-func (c htmlContent) Equals(content htmlContent) bool {
-	return c == content
-}
-
-func (c htmlContent) IsZero() bool {
-	return c.Equals(emptyHTMLContent)
-}
-
-func (c htmlContent) MarshalJSON() ([]byte, error) {
+func (c HTMLContent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Content string `json:"htmlContent"`
 	}{
@@ -63,25 +67,33 @@ func (c htmlContent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c htmlContent) Type() contentType {
-	return contentTypeHTML
-}
+var emptyPlainTextContent = PlainTextContent{}
 
-var emptyPlainTextContent = plainTextContent{}
-
-type plainTextContent struct {
+type PlainTextContent struct {
 	text string
 }
 
-func newPlainTextContent(text string) plainTextContent {
-	return plainTextContent{text}
+func NewPlainTextContent(text string) PlainTextContent {
+	return PlainTextContent{text}
 }
 
-func (c plainTextContent) Content() string {
+func (c PlainTextContent) Content() string {
 	return c.text
 }
 
-func (c plainTextContent) Validate() error {
+func (c PlainTextContent) Equals(content PlainTextContent) bool {
+	return c == content
+}
+
+func (c PlainTextContent) IsZero() bool {
+	return c.Equals(emptyPlainTextContent)
+}
+
+func (c PlainTextContent) Type() ContentType {
+	return ContentTypePlainText
+}
+
+func (c PlainTextContent) Validate() error {
 	if c.IsZero() {
 		return ErrEmptyPlainTextContent
 	}
@@ -89,15 +101,7 @@ func (c plainTextContent) Validate() error {
 	return nil
 }
 
-func (c plainTextContent) Equals(content plainTextContent) bool {
-	return c == content
-}
-
-func (c plainTextContent) IsZero() bool {
-	return c.Equals(emptyPlainTextContent)
-}
-
-func (c plainTextContent) MarshalJSON() ([]byte, error) {
+func (c PlainTextContent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Content string `json:"textContent"`
 	}{
@@ -105,19 +109,15 @@ func (c plainTextContent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c plainTextContent) Type() contentType {
-	return contentTypePlainText
-}
+var emptyTemplateContent = TemplateContent{}
 
-var emptyTemplateContent = templateContent{}
-
-type templateContent struct {
+type TemplateContent struct {
 	id     int
 	params map[string]interface{}
 }
 
-func newTemplateContent(id int, opts ...TemplateContentOption) templateContent {
-	c := templateContent{id: id}
+func NewTemplateContent(id int, opts ...TemplateContentOption) TemplateContent {
+	c := TemplateContent{id: id}
 	for _, opt := range opts {
 		opt(&c)
 	}
@@ -125,23 +125,27 @@ func newTemplateContent(id int, opts ...TemplateContentOption) templateContent {
 	return c
 }
 
-func (c templateContent) ID() int {
+func (c TemplateContent) ID() int {
 	return c.id
 }
 
-func (c templateContent) Params() map[string]interface{} {
+func (c TemplateContent) Params() map[string]interface{} {
 	return c.params
 }
 
-func (c templateContent) Validate() error {
-	if c.id <= 0 {
+func (c TemplateContent) Type() ContentType {
+	return ContentTypeTemplate
+}
+
+func (c TemplateContent) Validate() error {
+	if c.ID() <= 0 {
 		return ErrEmptyTemplateId
 	}
 
 	return nil
 }
 
-func (c templateContent) MarshalJSON() ([]byte, error) {
+func (c TemplateContent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		TemplateId int                    `json:"templateId"`
 		Params     map[string]interface{} `json:"params,omitempty"`
@@ -151,14 +155,10 @@ func (c templateContent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (c templateContent) Type() contentType {
-	return contentTypeTemplate
-}
-
-type TemplateContentOption func(c *templateContent)
+type TemplateContentOption func(c *TemplateContent)
 
 func WithParams(params map[string]interface{}) TemplateContentOption {
-	return func(c *templateContent) {
+	return func(c *TemplateContent) {
 		c.params = params
 	}
 }
