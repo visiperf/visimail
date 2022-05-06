@@ -71,7 +71,7 @@ func (c Contact) Validate() error {
 		return ErrEmptyContact
 	}
 
-	_, err := mail.ParseAddress(c.email)
+	_, err := mail.ParseAddress(c.Email())
 	return err
 }
 
