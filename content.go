@@ -12,9 +12,18 @@ var (
 	ErrEmptyTemplateId       = errors.New("template id is empty")
 )
 
+type contentType int
+
+const (
+	contentTypeHTML contentType = iota
+	contentTypePlainText
+	contentTypeTemplateId
+)
+
 type content interface {
 	json.Marshaler
 	Validate() error
+	Type() contentType
 }
 
 var emptyHTMLContent = htmlContent{}
@@ -55,6 +64,10 @@ func (c htmlContent) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (c htmlContent) Type() contentType {
+	return contentTypeHTML
+}
+
 var emptyPlainTextContent = plainTextContent{}
 
 type plainTextContent struct {
@@ -91,6 +104,10 @@ func (c plainTextContent) MarshalJSON() ([]byte, error) {
 	}{
 		Content: c.Content(),
 	})
+}
+
+func (c plainTextContent) Type() contentType {
+	return contentTypePlainText
 }
 
 var emptyTemplateIdContent = templateIdContent{}
@@ -141,6 +158,10 @@ func (c templateIdContent) MarshalJSON() ([]byte, error) {
 		TemplateId: c.ID(),
 		Params:     c.Params(),
 	})
+}
+
+func (c templateIdContent) Type() contentType {
+	return contentTypeTemplateId
 }
 
 type TemplateIdContentOption func(c *templateIdContent)
