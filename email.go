@@ -108,7 +108,7 @@ func (e Email) MarshalJSON() ([]byte, error) {
 		To          []Recipient  `json:"to"`
 		CC          []Recipient  `json:"cc,omitempty"`
 		BCC         []Recipient  `json:"bcc,omitempty"`
-		Subject     string       `json:"subject"`
+		Subject     string       `json:"subject,omitempty"`
 		ReplyTo     Sender       `json:"replyTo"`
 		Attachments []Attachment `json:"attachments,omitempty"`
 	}{
