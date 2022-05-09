@@ -93,17 +93,25 @@ func (e Email) copy() *Email {
 }
 
 func (e Email) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Content
+	bBody, err := json.Marshal(e.body)
+	if err != nil {
+		return nil, err
+	}
+
+	var mBody map[string]interface{}
+	if err := json.Unmarshal(bBody, &mBody); err != nil {
+		return nil, err
+	}
+
+	bEmail, err := json.Marshal(struct {
 		Sender      Sender       `json:"sender,omitempty"`
 		To          []Recipient  `json:"to"`
-		CC          []Recipient  `json:"cc"`
-		BCC         []Recipient  `json:"bcc"`
+		CC          []Recipient  `json:"cc,omitempty"`
+		BCC         []Recipient  `json:"bcc,omitempty"`
 		Subject     string       `json:"subject"`
 		ReplyTo     Sender       `json:"replyTo"`
-		Attachments []Attachment `json:"attachments"`
+		Attachments []Attachment `json:"attachments,omitempty"`
 	}{
-		Content:     e.body,
 		Sender:      e.from,
 		To:          e.to,
 		CC:          e.cc,
@@ -112,6 +120,20 @@ func (e Email) MarshalJSON() ([]byte, error) {
 		ReplyTo:     e.replyTo,
 		Attachments: e.attachments,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	var mEmail map[string]interface{}
+	if err := json.Unmarshal(bEmail, &mEmail); err != nil {
+		return nil, err
+	}
+
+	for k, v := range mBody {
+		mEmail[k] = v
+	}
+
+	return json.Marshal(mEmail)
 }
 
 type EmailBuilder struct {
