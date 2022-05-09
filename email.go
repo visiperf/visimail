@@ -88,6 +88,10 @@ func (e *Email) Validate() error {
 	return nil
 }
 
+func (e Email) copy() *Email {
+	return &Email{e.from, e.to, e.cc, e.bcc, e.body, e.subject, e.replyTo, e.attachments}
+}
+
 func (e Email) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Content
@@ -162,6 +166,10 @@ func (b *EmailBuilder) AppendAttachment(attachment Attachment) *EmailBuilder {
 	b.email.attachments = append(b.email.attachments, attachment)
 
 	return b
+}
+
+func (b *EmailBuilder) Build() *Email {
+	return b.email
 }
 
 type EmailBodyBuilder struct {
