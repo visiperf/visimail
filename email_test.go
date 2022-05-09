@@ -74,10 +74,11 @@ func TestEmaiValidate(t *testing.T) {
 		},
 		err: ErrReplyToRequired,
 	}, {
-		name: "no subject",
+		name: "text content without subject",
 		email: func() *Email {
 			e := email.copy()
 
+			e.body = NewPlainTextContent("hello")
 			e.subject = ""
 
 			return e

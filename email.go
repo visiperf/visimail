@@ -29,6 +29,10 @@ func (e *Email) Validate() error {
 		if e.from == nil {
 			return ErrFromRequired
 		}
+
+		if len(e.subject) <= 0 {
+			return ErrSubjectRequired
+		}
 	}
 
 	if e.from != nil {
@@ -79,10 +83,6 @@ func (e *Email) Validate() error {
 		if err := a.Validate(); err != nil {
 			return err
 		}
-	}
-
-	if len(e.subject) <= 0 {
-		return ErrSubjectRequired
 	}
 
 	return nil
