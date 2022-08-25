@@ -86,6 +86,12 @@ func (e *Email) Validate() error {
 		}
 	}
 
+	for _, t := range e.tags {
+		if t.IsEmpty() {
+			return ErrEmptyTag
+		}
+	}
+
 	return nil
 }
 
