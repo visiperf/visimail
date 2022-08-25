@@ -118,6 +118,7 @@ func (e Email) MarshalJSON() ([]byte, error) {
 		Subject     string       `json:"subject,omitempty"`
 		ReplyTo     Sender       `json:"replyTo"`
 		Attachments []Attachment `json:"attachment,omitempty"`
+		Tags        []Tag        `json:"tags,omitempty"`
 	}{
 		Sender:      e.from,
 		To:          e.to,
@@ -126,6 +127,7 @@ func (e Email) MarshalJSON() ([]byte, error) {
 		Subject:     e.subject,
 		ReplyTo:     e.replyTo,
 		Attachments: e.attachments,
+		Tags:        e.tags,
 	})
 	if err != nil {
 		return nil, err
