@@ -53,7 +53,7 @@ func (a AttachmentContent) Base64Content() string {
 }
 
 func (a AttachmentContent) Equals(attachment AttachmentContent) bool {
-	return a.Filename() == attachment.Filename() && bytes.Compare(a.Content(), attachment.Content()) == 0
+	return a.Filename() == attachment.Filename() && bytes.Equal(a.Content(), attachment.Content())
 }
 
 func (a AttachmentContent) IsZero() bool {
