@@ -109,8 +109,6 @@ func (c PlainTextContent) MarshalJSON() ([]byte, error) {
 	})
 }
 
-var emptyTemplateContent = TemplateContent{}
-
 type TemplateContent struct {
 	id     int
 	params map[string]interface{}
