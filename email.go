@@ -22,6 +22,7 @@ type Email struct {
 	subject     string
 	replyTo     Recipient
 	attachments []Attachment
+	tags        []Tag
 }
 
 func (e *Email) Validate() error {
@@ -89,7 +90,7 @@ func (e *Email) Validate() error {
 }
 
 func (e Email) copy() *Email {
-	return &Email{e.from, e.to, e.cc, e.bcc, e.body, e.subject, e.replyTo, e.attachments}
+	return &Email{e.from, e.to, e.cc, e.bcc, e.body, e.subject, e.replyTo, e.attachments, e.tags}
 }
 
 func (e Email) MarshalJSON() ([]byte, error) {
@@ -186,6 +187,12 @@ func (b *EmailBuilder) ReplyTo(recipient Recipient) *EmailBuilder {
 
 func (b *EmailBuilder) AppendAttachment(attachment Attachment) *EmailBuilder {
 	b.email.attachments = append(b.email.attachments, attachment)
+
+	return b
+}
+
+func (b *EmailBuilder) AppendTag(tag Tag) *EmailBuilder {
+	b.email.tags = append(b.email.tags, tag)
 
 	return b
 }
