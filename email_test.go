@@ -84,6 +84,18 @@ func TestEmaiValidate(t *testing.T) {
 			return e
 		},
 		err: ErrSubjectRequired,
+	}, {
+		name: "empty tag",
+		email: func() *Email {
+			e := email.copy()
+
+			e.tags = []Tag{
+				Tag(""),
+			}
+
+			return e
+		},
+		err: ErrEmptyTag,
 	}}
 
 	for _, test := range tests {

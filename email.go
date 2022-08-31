@@ -22,6 +22,7 @@ type Email struct {
 	subject     string
 	replyTo     Recipient
 	attachments []Attachment
+	tags        []Tag
 }
 
 func (e *Email) Validate() error {
@@ -85,11 +86,17 @@ func (e *Email) Validate() error {
 		}
 	}
 
+	for _, t := range e.tags {
+		if t.IsEmpty() {
+			return ErrEmptyTag
+		}
+	}
+
 	return nil
 }
 
 func (e Email) copy() *Email {
-	return &Email{e.from, e.to, e.cc, e.bcc, e.body, e.subject, e.replyTo, e.attachments}
+	return &Email{e.from, e.to, e.cc, e.bcc, e.body, e.subject, e.replyTo, e.attachments, e.tags}
 }
 
 func (e Email) MarshalJSON() ([]byte, error) {
@@ -111,6 +118,7 @@ func (e Email) MarshalJSON() ([]byte, error) {
 		Subject     string       `json:"subject,omitempty"`
 		ReplyTo     Sender       `json:"replyTo"`
 		Attachments []Attachment `json:"attachment,omitempty"`
+		Tags        []Tag        `json:"tags,omitempty"`
 	}{
 		Sender:      e.from,
 		To:          e.to,
@@ -119,6 +127,7 @@ func (e Email) MarshalJSON() ([]byte, error) {
 		Subject:     e.subject,
 		ReplyTo:     e.replyTo,
 		Attachments: e.attachments,
+		Tags:        e.tags,
 	})
 	if err != nil {
 		return nil, err
@@ -186,6 +195,12 @@ func (b *EmailBuilder) ReplyTo(recipient Recipient) *EmailBuilder {
 
 func (b *EmailBuilder) AppendAttachment(attachment Attachment) *EmailBuilder {
 	b.email.attachments = append(b.email.attachments, attachment)
+
+	return b
+}
+
+func (b *EmailBuilder) AppendTag(tag Tag) *EmailBuilder {
+	b.email.tags = append(b.email.tags, tag)
 
 	return b
 }
