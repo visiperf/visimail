@@ -9,7 +9,6 @@ var (
 	ErrFromRequired    = errors.New("from is required")
 	ErrToRequired      = errors.New("to is required")
 	ErrBodyRequired    = errors.New("body is required")
-	ErrReplyToRequired = errors.New("reply to is required")
 	ErrSubjectRequired = errors.New("subject is required")
 )
 
@@ -72,12 +71,10 @@ func (e *Email) Validate() error {
 		return err
 	}
 
-	if e.replyTo == nil {
-		return ErrReplyToRequired
-	}
-
-	if err := e.replyTo.Validate(); err != nil {
-		return err
+	if e.replyTo != nil {
+		if err := e.replyTo.Validate(); err != nil {
+			return err
+		}
 	}
 
 	for _, a := range e.attachments {
