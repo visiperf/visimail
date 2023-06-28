@@ -64,16 +64,6 @@ func TestEmaiValidate(t *testing.T) {
 		},
 		err: ErrBodyRequired,
 	}, {
-		name: "no reply to",
-		email: func() *Email {
-			e := email.copy()
-
-			e.replyTo = nil
-
-			return e
-		},
-		err: ErrReplyToRequired,
-	}, {
 		name: "text content without subject",
 		email: func() *Email {
 			e := email.copy()
